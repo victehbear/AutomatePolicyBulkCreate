@@ -1,0 +1,1776 @@
+{
+	"info": {
+		"_postman_id": "39e1f722-dc26-4a9d-add1-bea5f1b097c1",
+		"name": "202205_Create Policy in Bulk(Samsung)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "20342732"
+	},
+	"item": [
+		{
+			"name": "Setup",
+			"item": [
+				{
+					"name": "Login CRMZ",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"GET accessToken, x-api-key\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    var accessToken = jsonData.jwtToken.accessToken;\r",
+									"    pm.collectionVariables.set(\"x-api-key\", accessToken);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Verify status is success\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.status).is.eql(\"SUCCESS\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.globals.clear();"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"userName\": \"victor.teh\",\n    \"password\": \"@MyZero22\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{authBaseUrl}}/login/permissions",
+							"host": [
+								"{{authBaseUrl}}"
+							],
+							"path": [
+								"login",
+								"permissions"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Test",
+			"item": [
+				{
+					"name": "Flush Cache",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.environment.set(\"envPolicyId\", \"\");\r",
+									"pm.environment.set(\"envImei\", \"\");\r",
+									"pm.environment.set(\"envSerialNo\", \"\");\r",
+									"pm.environment.set(\"envPolicyPurchaseDate\", \"\");\r",
+									"pm.environment.set(\"envProductName\", \"\");\r",
+									"pm.environment.set(\"envEmail\", \"\");\r",
+									"pm.environment.set(\"envDeviceModel\", \"\");\r",
+									"pm.environment.set(\"envCoverage\", \"\");\r",
+									"pm.environment.set(\"envPolicyStartDate\", \"\");\r",
+									"pm.environment.set(\"envPolicyEndDate\", \"\");\r",
+									"pm.environment.set(\"envPlanName\", \"\");\r",
+									"\r",
+									"pm.test(\"Set next request\", function () {\r",
+									"    postman.setNextRequest(\"Get plans by productCode\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{x-api-key}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{productBaseUrl}}/productapi/products/flushCache",
+							"host": [
+								"{{productBaseUrl}}"
+							],
+							"path": [
+								"productapi",
+								"products",
+								"flushCache"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get plans by productCode",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"//Collecting single row record \r",
+									"pm.test(\"Set ID\", function () {\r",
+									"    const _dataID = pm.iterationData.get(\"dataID\");\r",
+									"    pm.expect(_dataID).not.eql(null);\r",
+									"    pm.collectionVariables.set(\"id\", _dataID);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Set productCode\", function () {\r",
+									"    const productCode = pm.iterationData.get(\"dataProductCode\");\r",
+									"    pm.expect(productCode).not.eql(null);\r",
+									"    pm.collectionVariables.set(\"productCode\", productCode);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Set clientCode\", function () {\r",
+									"    const _clientCode = pm.iterationData.get(\"dataClientCode\");\r",
+									"    pm.expect(_clientCode).not.eql(null);\r",
+									"    pm.collectionVariables.set(\"clientCode\", _clientCode);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Set PID\", function () {\r",
+									"    const partnerProductId = pm.iterationData.get(\"dataPID\");\r",
+									"    pm.collectionVariables.set(\"partnerProductId\", partnerProductId);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Set ORD\", function () {\r",
+									"    const partnerParentPolicyId = pm.iterationData.get(\"licenseKey\");\r",
+									"    pm.collectionVariables.set(\"partnerParentPolicyId\", partnerParentPolicyId);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Set QTY\", function () {\r",
+									"    const deviceQuantity = pm.iterationData.get(\"qty\");\r",
+									"    pm.collectionVariables.set(\"deviceQuantity\", deviceQuantity);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Set testMode\", function () {\r",
+									"    const _testMode = pm.iterationData.get(\"dataTestMode\");\r",
+									"    pm.collectionVariables.set(\"testMode\", _testMode);\r",
+									"\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Set testMode\", function () {\r",
+									"    const _verifyClaimSetting = pm.iterationData.get(\"dataCheckClaimSetting\");\r",
+									"    pm.collectionVariables.set(\"isVerifyClaimSetting\" ,_verifyClaimSetting );\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Set device model\", function () {\r",
+									"    const deviceModel = pm.iterationData.get(\"dataDeviceModel\");\r",
+									"    pm.expect(deviceModel).not.eql(null);\r",
+									"    pm.collectionVariables.set(\"deviceModel\", deviceModel);\r",
+									"})\r",
+									"\r",
+									"pm.test(\"Generate current date\", function () {\r",
+									"    var moment = require('moment');\r",
+									"    pm.collectionVariables.set(\"currentDate\", moment().format(\"DD/MM/YYYY\"));\r",
+									"    //pm.collectionVariables.set(\"currentDateToString\", moment().format());\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Generate yesterday date\", function () {\r",
+									"    var moment = require('moment');\r",
+									"    const dateNow = new Date();\r",
+									"    const yesterday = new Date(dateNow.setDate(dateNow.getDate()-1));\r",
+									"    pm.collectionVariables.set(\"yesterdayDate\", moment(yesterday).format(\"DD/MM/YYYY\"));\r",
+									"    //pm.collectionVariables.set(\"yesterdayToString\", moment().format());\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Generate 24h timestamp\", function () {\r",
+									"    const moment =require(\"moment\");\r",
+									"    const time = moment().format(\"hh:mm:ss a\");\r",
+									"    const time2 = moment(time, [\"hh:mm:ss a\"]).format(\"HH:mm:ss\");\r",
+									"    pm.collectionVariables.set(\"24hTime\", time2);\r",
+									"});\r",
+									"// pm.test(\"Set partner contract id\", function () {\r",
+									"//     const partnerContractId = pm.iterationData.get(\"dataPartnerContractId\");\r",
+									"//     pm.collectionVariables.set(\"partnerContractId\", partnerContractId);\r",
+									"// });\r",
+									"\r",
+									"pm.test(\"Set cust mobile number\", function () {\r",
+									"    const custMobileNumber = pm.iterationData.get(\"dataCustMobileNumber\");\r",
+									"    pm.collectionVariables.set(\"custMobileNumber\", custMobileNumber);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Set custName\", function () {\r",
+									"    const _custName = pm.iterationData.get(\"dataCustName\");\r",
+									"    pm.collectionVariables.set(\"custName\", _custName);\r",
+									"});\r",
+									"    \r",
+									"pm.test(\"Set custLastName\", function () {\r",
+									"    const _custLastName = pm.iterationData.get(\"dataCustLastName\");\r",
+									"    pm.collectionVariables.set(\"custLastName\", _custLastName);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Set custEmail\", function () {\r",
+									"    const _custEmail = pm.iterationData.get(\"dataCustEmail\");\r",
+									"    pm.collectionVariables.set(\"custEmail\", _custEmail);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Set custDOB\", function () {\r",
+									"    const _custDOB = pm.iterationData.get(\"dataCustDOB\");\r",
+									"    pm.collectionVariables.set(\"custDOB\", _custDOB);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Set next request\", function () {\r",
+									"    postman.setNextRequest(\"Get partner id\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validate product code\", function () {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    const validateProductCode = pm.collectionVariables.get(\"productCode\");\r",
+									"    if(jsonData == undefined || jsonData == \"\")\r",
+									"    {\r",
+									"        console.log(\"Skip policy creation for record with ID_v1 :: \" + pm.collectionVariables.get(\"id\") + \"::\" + pm.collectionVariables.get(\"productCode\") + \"::\" + pm.collectionVariables.get(\"partnerProductId\"));\r",
+									"        postman.setNextRequest(\"Last Step\");\r",
+									"    }\r",
+									"    pm.expect(jsonData[0].productCode).to.eql(validateProductCode);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Get coverage type\", function () {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData[0].coverageCode).to.be.a(\"string\");\r",
+									"    pm.collectionVariables.set(\"coverageCode\", jsonData[0].coverageCode);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Get tenture in months\", function () {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData[0].tenureInMonths).to.be.a(\"number\");\r",
+									"    pm.collectionVariables.set(\"tenureInMonths\", jsonData[0].tenureInMonths);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{x-api-key}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{productBaseUrl}}/productapi/products/{{productCode}}/plans",
+							"host": [
+								"{{productBaseUrl}}"
+							],
+							"path": [
+								"productapi",
+								"products",
+								"{{productCode}}",
+								"plans"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get partner id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Get Client Details\", function () {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    const _clientCode = pm.collectionVariables.get(\"clientCode\");\r",
+									"\r",
+									"    const partnerId = _.find(jsonData.clientList, function(u) { return u.clientCode === _clientCode }).partnerId;\r",
+									"\r",
+									"    pm.collectionVariables.set(\"partnerId\", partnerId);\r",
+									"\r",
+									"    const countryCode = _.find(jsonData.clientList, function(u) { return u.clientCode === _clientCode }).countryCode;\r",
+									"    pm.collectionVariables.set(\"countryCode\", countryCode);\r",
+									"\r",
+									"    const clientName = _.find(jsonData.clientList, function(u) { return u.clientCode === _clientCode }).countryCode;\r",
+									"    pm.collectionVariables.set(\"clientName\", clientName);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Set next request\", function () {\r",
+									"    const _testMode = pm.collectionVariables.get(\"testMode\");\r",
+									"    console.log(\"_testMode::\" + _testMode);\r",
+									"    if (_testMode == \"samsung_imei\" || _testMode == \"samsung_serial\") {\r",
+									"        postman.setNextRequest(\"Verify ProductCode and PID valid\");\r",
+									"    }\r",
+									"    else {\r",
+									"        postman.setNextRequest(\"Get product name\");\r",
+									"    }\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{x-api-key}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{productBaseUrl}}/productapi/clients/",
+							"host": [
+								"{{productBaseUrl}}"
+							],
+							"path": [
+								"productapi",
+								"clients",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Verify ProductCode and PID valid",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const requestData =  JSON.parse(pm.request.body);\r",
+									"//const checkedData = requestData.partnerId + \" ::\" + requestData.productId + \" ::\" + requestData.productCode;\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Verify ProductCode and PID valid\", function () {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    const retrievedPlan = jsonData.plans;\r",
+									"    if(retrievedPlan === null)\r",
+									"    {\r",
+									"        console.log(\"Skip policy creation for record with ID_v2 :: \" + pm.collectionVariables.get(\"id\") + \"::\" + pm.collectionVariables.get(\"productCode\") + \"::\" + pm.collectionVariables.get(\"partnerProductId\"));\r",
+									"        postman.setNextRequest(\"Last Step\");    \r",
+									"    }else\r",
+									"    {\r",
+									"        pm.collectionVariables.set(\"plansFetched\", retrievedPlan);\r",
+									"        //pm.collectionVariables.set(\"tenureInMonths\" , jsonData.tenureInMonths);\r",
+									"        if(pm.collectionVariables.get(\"isVerifyClaimSetting\") == \"TRUE\")\r",
+									"        {\r",
+									"            postman.setNextRequest(\"Set Flowable Product Rules\");\r",
+									"        }\r",
+									"        else\r",
+									"        {\r",
+									"            postman.setNextRequest(\"Get product name\");\r",
+									"        }\r",
+									"    }\r",
+									"    pm.expect(retrievedPlan).not.eq(null);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJzYW1zdW5nIiwicm9sZSI6IjEwLDMsMyIsInBvc3RhbEFkZHJlc3MiOiJyZWdpb25hbCIsImF1dGhVcGRhdGlvblJlcXVpcmVkIjpmYWxzZSwiZ2lkTnVtYmVyIjoiNTA1IiwiaWF0IjoxNTkwNzY2OTkzfQ.l6KO_wxpYQsXIedE-9XU7YfH_Z8WQrKJHblqyJjEfyj_NPBnB_T5n-gEGBZClzXF6-vK2NmaHD-DGcygIjyMwQ",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"policyStartDate\": \"12/07/2021\",\r\n    \"deviceModelKey\": \"{{deviceModel}}\",\r\n    \"partnerId\": \"{{partnerId}}\",\r\n    \"productId\": \"{{partnerProductId}}\",\r\n    \"productCode\": \"{{productCode}}\",\r\n    \"customerDeviceDiagnosticConsent\": \"\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{productBaseUrl}}/productapi/products/product-by-filtered-data",
+							"host": [
+								"{{productBaseUrl}}"
+							],
+							"path": [
+								"productapi",
+								"products",
+								"product-by-filtered-data"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Set Flowable Product Rules",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const response = pm.response.json();\r",
+									"\r",
+									"if(response.data != undefined && response.data.length > 0 && response.data[0].id != undefined) {\r",
+									"    pm.collectionVariables.set(\"flowableProductDefinitionID\", response.data[0].id);\r",
+									"}\r",
+									"\r",
+									"postman.setNextRequest(\"Verify Flowable Setting\");\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let username = pm.collectionVariables.get(\"flowableUsername\"),\r",
+									"    password = pm.collectionVariables.get(\"flowablePassword\");\r",
+									"\r",
+									"// Using the btoa (Binary to ASCII) function to base64 encode the credentials\r",
+									"let flowableAuth = btoa(username + \":\" + password);\r",
+									"\r",
+									"pm.collectionVariables.set(\"flowableAuth\", \"Basic \" + flowableAuth);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{flowableAuth}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{flowableBaseUrl}}/flowable-task/process-api/repository/process-definitions?latest=true&key=productRules",
+							"host": [
+								"{{flowableBaseUrl}}"
+							],
+							"path": [
+								"flowable-task",
+								"process-api",
+								"repository",
+								"process-definitions"
+							],
+							"query": [
+								{
+									"key": "latest",
+									"value": "true"
+								},
+								{
+									"key": "key",
+									"value": "productRules"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Verify Flowable Setting",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const requestData = JSON.parse(pm.request.body);\r",
+									"const checkedData = requestData.variables[0].value + \" ::\" + requestData.variables[1].value;\r",
+									"pm.test(\"Status code is 200\", function() {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Check response message = successful for \" + checkedData, function() {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    const variables = jsonData.variables;\r",
+									"    variables.forEach(verifySetting)\r",
+									"    pm.expect(variables).not.eq(null);\r",
+									"\r",
+									"});\r",
+									"\r",
+									"function verifySetting(item) {\r",
+									"    var varName = item.name;\r",
+									"    var varValue = item.value;\r",
+									"    var productCode = requestData.variables[0].value;\r",
+									"    switch (varName) {\r",
+									"        case \"initiator\":\r",
+									"            pm.test(\"Check Flowable initiator \", function() {\r",
+									"                pm.expect(varValue).eq(\"flowLdap\");\r",
+									"            });\r",
+									"            break;\r",
+									"        case \"productCode\":\r",
+									"            pm.test(\"Check Flowable productCode \", function() {\r",
+									"                pm.expect(varValue).eq(productCode);\r",
+									"            });\r",
+									"            break;\r",
+									"        case \"country\":\r",
+									"            pm.test(\"Check Flowable country \", function() {\r",
+									"                pm.expect(varValue).eq(requestData.variables[1].value);\r",
+									"            });\r",
+									"\r",
+									"            break;\r",
+									"        case \"hasExcessFeeAdldBer\":\r",
+									"            pm.test(\"Check Flowable hasExcessFeeAdldBer \", function() {\r",
+									"                pm.expect(varValue).eq(false);\r",
+									"            });\r",
+									"            break;\r",
+									"        case \"hasExcessFeeAdldRepair\":\r",
+									"            pm.test(\"Check Flowable hasExcessFeeAdldRepair \", function() {\r",
+									"                pm.expect(varValue).eq(true);\r",
+									"            });\r",
+									"            break;\r",
+									"        case \"claimTenurePerCycle\":\r",
+									"            pm.test(\"Check Flowable claimTenurePerCycle \", function() {\r",
+									"                if( pm.collectionVariables.get(\"tenureInMonths\") == \"6\")\r",
+									"                    pm.expect(varValue).eq(6.0);\r",
+									"                else\r",
+									"                    pm.expect(varValue).eq(12.0);\r",
+									"            });\r",
+									"            break;\r",
+									"        case \"checkIsAnyActiveClaim\":\r",
+									"            pm.test(\"Check Flowable checkIsAnyActiveClaim \", function() {\r",
+									"                pm.expect(varValue).eq(true);\r",
+									"            });\r",
+									"            break;\r",
+									"        case \"isActive\":\r",
+									"            pm.test(\"Check Flowable isActive \", function() {\r",
+									"                pm.expect(varValue).eq(true);\r",
+									"            });\r",
+									"            break;\r",
+									"        case \"hasExcessFeeTheft\":\r",
+									"            pm.test(\"Check Flowable hasExcessFeeTheft \", function() {\r",
+									"                if (productCode.includes(\"THEFT\"))\r",
+									"                    pm.expect(varValue).eq(true);\r",
+									"                else\r",
+									"                    pm.expect(varValue).eq(false);\r",
+									"            });\r",
+									"            break;\r",
+									"        case \"allowClaimNotificationPeriodInDays\":\r",
+									"            pm.test(\"Check Flowable allowClaimNotificationPeriodInDays \", function() {\r",
+									"                pm.expect(varValue).eq(0.0);\r",
+									"            });\r",
+									"\r",
+									"            break;\r",
+									"        case \"allowTopUp\":\r",
+									"            pm.test(\"Check Flowable allowTopUp \", function() {\r",
+									"                pm.expect(varValue).eq(true);\r",
+									"            });\r",
+									"\r",
+									"            break;\r",
+									"        case \"isWorldwideCover\":\r",
+									"            pm.test(\"Check Flowable isWorldwideCover \", function() {\r",
+									"                pm.expect(varValue).eq(true);\r",
+									"            });\r",
+									"\r",
+									"            break;\r",
+									"        case \"totalClaimedPerCycle\":\r",
+									"            pm.test(\"Check Flowable totalClaimedPerCycle \", function() {\r",
+									"                if( pm.collectionVariables.get(\"tenureInMonths\") == \"6\")\r",
+									"                    pm.expect(varValue).eq(1.0);\r",
+									"                else\r",
+									"                    pm.expect(varValue).eq(2.0);\r",
+									"            });\r",
+									"            break;\r",
+									"        case \"checkClaimByCycle\":\r",
+									"            pm.test(\"Check Flowable checkClaimByCycle \", function() {\r",
+									"                pm.expect(varValue).eq(true);\r",
+									"            });\r",
+									"            break;\r",
+									"        case \"riskType\":\r",
+									"            pm.test(\"Check Flowable riskType \", function() {\r",
+									"                pm.expect(varValue).eq(1001.0);\r",
+									"            });\r",
+									"            break;\r",
+									"        case \"numberOfClaimAllowed\":\r",
+									"            pm.test(\"Check Flowable numberOfClaimAllowed \", function() {\r",
+									"            pm.expect(varValue).eq(0.0);\r",
+									"            });\r",
+									"            break;\r",
+									"        case \"tenureInMonths\":\r",
+									"            pm.test(\"Check Flowable tenureInMonths \", function() {\r",
+									"            pm.expect(varValue).eq(0.0);\r",
+									"            });\r",
+									"            break;\r",
+									"        case \"numberOfReplacementAllowed\":\r",
+									"            pm.test(\"Check Flowable numberOfReplacementAllowed \", function() {\r",
+									"            pm.expect(varValue).eq(0.0);\r",
+									"            });\r",
+									"            break;\r",
+									"        default:\r",
+									"            break;\r",
+									"\r",
+									"    }\r",
+									"}\r",
+									"\r",
+									"postman.setNextRequest(\"Get product name\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{flowableAuth}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"processDefinitionId\": \"{{flowableProductDefinitionID}}\",\r\n    \"variables\": [{\r\n        \"name\": \"productCode\",\r\n        \"value\":\"{{productCode}}\"\r\n    },{\r\n        \"name\": \"country\",\r\n        \"value\":\"{{countryCode}}\"\r\n    }],\r\n    \"returnVariables\": true\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{flowableBaseUrl}}/flowable-task/process-api/runtime/process-instances",
+							"host": [
+								"{{flowableBaseUrl}}"
+							],
+							"path": [
+								"flowable-task",
+								"process-api",
+								"runtime",
+								"process-instances"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Verify Cooling Period",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Verify success message\", function () {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.message[0]).to.eql(\"Details successfully fetched\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Verify _ruleCode(For productCode)\", function () {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    //Assume only one \"POLICY\" rule set\r",
+									"    const _ruleCode = _.find(jsonData.obj, function(u) { return u.domain === \"POLICY\" }).ruleCode;\r",
+									"    if(pm.collectionVariables.get(\"countryCode\") === \"BE\" ||\r",
+									"        pm.collectionVariables.get(\"countryCode\") === \"NL\")\r",
+									"    {\r",
+									"        pm.expect(_ruleCode).to.eql(\"PR_996\");\r",
+									"    }else{\r",
+									"        pm.expect(_ruleCode).to.eql(\"PR_997\");\r",
+									"    }\r",
+									"\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{x-api-key}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{productBaseUrl}}/productapi/products/productRule/{{productCode}}",
+							"host": [
+								"{{productBaseUrl}}"
+							],
+							"path": [
+								"productapi",
+								"products",
+								"productRule",
+								"{{productCode}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get product name",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Verify success message\", function () {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.message[0]).to.eql(\"Details successfully fetched\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Get product name\", function () {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    const productCode = pm.collectionVariables.get(\"productCode\");\r",
+									"    const productName = _.find(jsonData.obj.resultList, function(u) { return u.productCode === productCode }).name;\r",
+									"    pm.expect(productName).not.eql(null);\r",
+									"    pm.collectionVariables.set(\"productName\", productName);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Get client product description\", function() {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    const productCode = pm.collectionVariables.get(\"productCode\");\r",
+									"    const clientProductDescription = _.find(jsonData.obj.resultList, function(r) { return r.productCode === productCode }).clientProductDescription;\r",
+									"    pm.expect(clientProductDescription).not.eql(null);\r",
+									"    pm.collectionVariables.set(\"clientProductDescription\", clientProductDescription);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Check _testMode\", function() {\r",
+									"    const _testMode = pm.collectionVariables.get(\"testMode\");\r",
+									"    if (_testMode == \"samsung_imei\") {\r",
+									"        postman.setNextRequest(\"Register policy (Samsung Imei)\");\r",
+									"    } \r",
+									"    else if (_testMode == \"samsung_serial\") {\r",
+									"        postman.setNextRequest(\"Register policy (Samsung Serial)\");\r",
+									"    }\r",
+									"    else {\r",
+									"        postman.setNextRequest(\"Register policy (Others)\");\r",
+									"    }\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{x-api-key}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"clientCode\": \"{{partnerId}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{productBaseUrl}}/productapi/products/search",
+							"host": [
+								"{{productBaseUrl}}"
+							],
+							"path": [
+								"productapi",
+								"products",
+								"search"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Register policy (Samsung Imei)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.test(\"Generate IMEI_1\", function () {\r",
+									"    pm.collectionVariables.set(\"generateSerialNo\", \"\");\r",
+									"    pm.collectionVariables.set(\"generateImei\", _.random(111111111111111, 999999999999999));\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Generate partnerContractId_1\", function () {\r",
+									"    pm.collectionVariables.set(\"partnerContractId\", \"SAMDUMMY22\" + _.random (1000,9999));\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Get and set deviceRRP_1\", function () {\r",
+									"    pm.collectionVariables.set(\"deviceRRP\", \"1000\");\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Check response message = successful\", function () {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    const partnerParentPolicyId = pm.collectionVariables.get(\"partnerParentPolicyId\");\r",
+									"    pm.expect(jsonData.message[0]).to.eql(\"Master contract Created With Parent Policy ID:\"+partnerParentPolicyId);\r",
+									"    pm.expect(jsonData.status).to.eql(\"OK\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Get policy id\", function () {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.collectionVariables.set(\"policyId\", jsonData.obj.policyNumber);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validate product name\", function () {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    const validateProductName = pm.collectionVariables.get(\"productName\");\r",
+									"    pm.expect(jsonData.obj.productName).to.eql(validateProductName);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validate partner Details\", function () {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    const _validatePartnerContractNo = pm.collectionVariables.get(\"partnerContractId\");\r",
+									"    pm.expect(jsonData.obj.partner_contract_number).to.eql(_validatePartnerContractNo);\r",
+									"\r",
+									"    const _validateProductCode = pm.collectionVariables.get(\"productCode\");\r",
+									"    pm.expect(jsonData.obj.partnerProductCode).to.eql(_validateProductCode);\r",
+									"    pm.expect(jsonData.obj.productCode).to.eql(_validateProductCode);\r",
+									"\r",
+									"    const validatePID = pm.collectionVariables.get(\"partnerProductId\");\r",
+									"    pm.expect(jsonData.obj.partnerProductId).to.eql(validatePID);\r",
+									"\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validate policyStatus\", function () {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.obj.policyStatusCode).to.eql(\"10001\");\r",
+									"    pm.expect(jsonData.obj.policyStatus).to.eql(\"Active\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validate ecertUrl\", function () {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.obj.ecertUrl).not.equal(null);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validate notification success = ST_NOTIF_0004\", function () {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.obj.ecertAndNotificationStatus).to.eql(\"ST_NOTIF_0004\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Set next request\", function() {\r",
+									"    postman.setNextRequest(\"Get policy by id\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ2aWN0b3IudGVoIiwicm9sZSI6IjEwLDMsMywzIiwicG9zdGFsQWRkcmVzcyI6IlJFR0lPTkFMIiwibWFpbCI6InZpY3RvcnRlaEBhbHRlY2ZsZXguY29tIiwiZmlyc3RMb2dpbiI6ZmFsc2UsImF1dGhVcGRhdGlvblJlcXVpcmVkIjpmYWxzZSwiZ2lkTnVtYmVyIjoiNTA1IiwiZXhwIjoxNjU3Njg0OTgwLCJpYXQiOjE2NTc1OTg1ODB9.VGfL_1T_xHBw8ngZp8bXF1ZSWzgUYTjNU3ah5EEgvIpRAsUHJWyErVLl6IYcK-cTj9ZSHzWq4kNAN4XuVP3CDg",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"customerName\": \"{{custName}}\",\r\n  \"customerLastName\": \"{{custLastName}}\",\r\n  \"custMobileNumber\": \"{{custMobileNumber}}\",\r\n  \"customerDateOfBirth\" : \"{{custDOB}}\",\r\n  \"customerEmail\": \"{{custEmail}}\",\r\n  \"custAddress\" : {\r\n        \"address1\" : \"21 jump street\",\r\n        \"address2\" : \"New South Caroline\",\r\n        \"postalCode\" : \"88888\",\r\n        \"city\" : \"wow this place\",\r\n        \"state\" : \"it is here\"\r\n    },\r\n  \"deviceSoldDate\": \"{{yesterdayDate}}\",\r\n  \"policyPurchaseDate\": \"{{yesterdayDate}}\",\r\n  \"orderId\": \"\",\r\n  \"storeCode\": \"B2B\",\r\n  \"countryCode\": \"{{countryCode}}\",\r\n  \"policyStartDate\": \"{{yesterdayDate}}\",\r\n  \"deviceRRP\": \"{{deviceRRP}}\",\r\n  \"deviceColor\": \"\",\r\n  \"deviceCapacity\": \"\",\r\n  \"deviceMemory\": \"\",\r\n  \"salesRepId\": \"\",\r\n  \"partnerContractId\": \"{{partnerContractId}}\",\r\n  \"deviceModel\": \"{{deviceModel}}\",\r\n  \"policyIMEINumber\": \"{{generateImei}}\",\r\n  \"partnerId\": \"{{partnerId}}\",\r\n  \"partnerProductId\": \"{{partnerProductId}}\",\r\n  \"productCode\": \"{{productCode}}\",\r\n  \"partnerParentPolicyId\" : \"{{partnerParentPolicyId}}\",\r\n  \"deviceQuantity\" :\"{{deviceQuantity}}\",\r\n  \"retailerName\" : \"Samsung B2B Retailer\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{policyBaseUrl}}/master-policy",
+							"host": [
+								"{{policyBaseUrl}}"
+							],
+							"path": [
+								"master-policy"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Register policy (Samsung Serial)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.test(\"Generate Serial No_2\", function () {\r",
+									"    function deviceSerialNo() {\r",
+									"        var text = \"\";\r",
+									"        var possible = \"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789\";\r",
+									"        \r",
+									"        for (var i = 0; i < 11; i++) \r",
+									"        text += possible.charAt(Math.floor(Math.random() * possible.length));\r",
+									"        return text;\r",
+									"    }\r",
+									"    pm.collectionVariables.set(\"generateImei\", \"\");\r",
+									"    pm.collectionVariables.set(\"generateSerialNo\", deviceSerialNo());\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Generate partnerContractId_2\", function () {\r",
+									"    pm.collectionVariables.set(\"partnerContractId\", \"SAMDUMMY22\" + _.random (1000,9999));\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Get and set deviceRRP_2\", function () {\r",
+									"    pm.collectionVariables.set(\"deviceRRP\", \"2000\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Check response message = successful\", function () {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    const _generateSerialNo = pm.collectionVariables.get(\"generateSerialNo\");\r",
+									"        pm.expect(jsonData.message[0]).to.eql(\"Service contract Created With Serial Number:\"+_generateSerialNo);\r",
+									"    pm.expect(jsonData.status).to.eql(\"OK\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Get policy id\", function () {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.collectionVariables.set(\"policyId\", jsonData.obj.policyNumber);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validate product name\", function () {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    const validateProductName = pm.collectionVariables.get(\"productName\");\r",
+									"    pm.expect(jsonData.obj.productName).to.eql(validateProductName);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validate partner Details\", function () {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    const _validatePartnerContractNo = pm.collectionVariables.get(\"partnerContractId\");\r",
+									"    pm.expect(jsonData.obj.partner_contract_number).to.eql(_validatePartnerContractNo);\r",
+									"\r",
+									"    const _validateProductCode = pm.collectionVariables.get(\"productCode\");\r",
+									"    pm.expect(jsonData.obj.partnerProductCode).to.eql(_validateProductCode);\r",
+									"    pm.expect(jsonData.obj.productCode).to.eql(_validateProductCode);\r",
+									"\r",
+									"    const validatePID = pm.collectionVariables.get(\"partnerProductId\");\r",
+									"    pm.expect(jsonData.obj.partnerProductId).to.eql(validatePID);\r",
+									"\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validate policyStatus\", function () {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.obj.policyStatusCode).to.eql(\"10001\");\r",
+									"    pm.expect(jsonData.obj.policyStatus).to.eql(\"Active\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validate ecertUrl\", function () {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.obj.ecertUrl).not.equal(null);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validate notification success = ST_NOTIF_0004\", function () {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.obj.ecertAndNotificationStatus).to.eql(\"ST_NOTIF_0004\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Set next request\", function() {\r",
+									"    postman.setNextRequest(\"Get policy by id\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{x-api-key}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"customerName\": \"{{custName}}\",\r\n  \"customerLastName\": \"{{custLastName}}\",\r\n  \"custMobileNumber\": \"{{custMobileNumber}}\",\r\n  \"customerDateOfBirth\" : \"{{custDOB}}\",\r\n  \"customerEmail\": \"{{custEmail}}\",\r\n  \"custAddress\" : {\r\n        \"address1\" : \"21 jump street\",\r\n        \"address2\" : \"New South Caroline\",\r\n        \"postalCode\" : \"88888\",\r\n        \"city\" : \"wow this place\",\r\n        \"state\" : \"it is here\"\r\n    },\r\n  \"deviceSoldDate\": \"{{yesterdayDate}}\",\r\n  \"policyPurchaseDate\": \"{{yesterdayDate}}\",\r\n  \"orderId\": \"\",\r\n  \"storeCode\": \"eStore\",\r\n  \"countryCode\": \"{{countryCode}}\",\r\n  \"policyStartDate\": \"{{yesterdayDate}}\",\r\n  \"deviceRRP\": \"{{deviceRRP}}\",\r\n  \"deviceColor\": \"\",\r\n  \"deviceCapacity\": \"\",\r\n  \"deviceMemory\": \"\",\r\n  \"salesRepId\": \"\",\r\n  \"partnerContractId\": \"{{partnerContractId}}\",\r\n  \"deviceModel\": \"{{deviceModel}}\",\r\n  \"deviceSerialNo\": \"{{generateSerialNo}}\",\r\n  \"partnerId\": \"{{partnerId}}\",\r\n  \"partnerProductId\": \"{{partnerProductId}}\",\r\n  \"productCode\": \"{{productCode}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{policyBaseUrl}}/policy",
+							"host": [
+								"{{policyBaseUrl}}"
+							],
+							"path": [
+								"policy"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Register policy (Others)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.test(\"Generate IMEI_3\", function () {\r",
+									"    pm.collectionVariables.set(\"generateImei\", _.random(111111111111111, 999999999999999));\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Generate current date_3\", function () {\r",
+									"    var moment = require('moment');\r",
+									"    pm.collectionVariables.set(\"currentDate\", moment().format(\"DD/MM/YYYY\"));\r",
+									"    pm.collectionVariables.set(\"currentDateToString\", moment().format());\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Generate 24h timestamp_3\", function () {\r",
+									"    const moment =require(\"moment\");\r",
+									"    const time = moment().format(\"hh:mm:ss a\");\r",
+									"    const time2 = moment(time, [\"hh:mm:ss a\"]).format(\"HH:mm:ss\");\r",
+									"    pm.collectionVariables.set(\"24hTime\", time2);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Get and set deviceRRP_3\", function () {\r",
+									"    const devicePriceEndingRange = pm.collectionVariables.get(\"devicePriceEndingRange\");\r",
+									"    const deviceRRP = devicePriceEndingRange - \"1\";\r",
+									"    pm.collectionVariables.set(\"deviceRRP\", deviceRRP);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Set customer details_3\", function () {\r",
+									"    pm.collectionVariables.set(\"custName\", \"Automation\");\r",
+									"    pm.collectionVariables.set(\"custLastName\", \"Test\");\r",
+									"    pm.collectionVariables.set(\"custMobileNumber\", \"8796633769\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Check response message = successful\", function () {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    const generateImei = pm.collectionVariables.get(\"generateImei\");\r",
+									"    pm.expect(jsonData.message[0]).to.eql(\"Service contract Created With IMEI Number:\"+generateImei);\r",
+									"    pm.expect(jsonData.status).to.eql(\"OK\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Get policy id\", function () {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.collectionVariables.set(\"policyId\", jsonData.obj.policyNumber);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validate product name\", function () {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    const validateProductName = pm.collectionVariables.get(\"productName\");\r",
+									"    pm.expect(jsonData.obj.productName).to.eql(validateProductName);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validate notification success = ST_NOTIF_0004\", function () {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.obj.ecertAndNotificationStatus).to.eql(\"ST_NOTIF_0004\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Set next request\", function() {\r",
+									"    postman.setNextRequest(\"Get policy by id\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{x-api-key}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"coverage\" : \"{{coverageCode}}\",\r\n    \"policyTenure\" : \"{{tenureInMonths}}\",\r\n    \"countryCode\" : \"{{countryCode}}\",\r\n    \"deviceSoldDate\" : \"{{currentDate}}\",\r\n    \"orderId\" : \"\",\r\n    \"partnerId\" : \"{{partnerId}}\",\r\n    \"clientProductDescription\" : \"{{clientProductDescription}}\",\r\n    \"balanceRRP\" : \"{{deviceRRP}}\",\r\n    \"subscriptionFlag\" : false,\r\n    \"partnerProductCode\" : \"{{productCode}}\",\r\n    \"customerId\" : \"\",\r\n    \"deviceDiagnosticUrl\" : [ ],\r\n    \"deviceActivationDate\" : \"{{currentDateToString}}\",\r\n    \"productCode\" : \"{{productCode}}\",\r\n    \"legacyValueAddedServices\" : [ ],\r\n    \"gracePeriodStartDate\" : \"\",\r\n    \"gracePeriodEndDate\" : \"\",\r\n    \"gracePeriodExtensionReason\" : \"\",\r\n    \"clientTransactionNo\" : \"\",\r\n    \"policyPurchaseDate\" : \"{{currentDate}}\",\r\n    \"productName\" : \"{{productName}}\",\r\n    \"customerName\" : \"{{custName}}\",\r\n    \"customerLastName\" : \"{{custLastName}}\",\r\n    \"custIdNumber\" : \"\",\r\n    \"custMobileNumber\" : \"{{custMobileNumber}}\",\r\n    \"customerEmail\" : \"{{custEmail}}\",\r\n    \"customerDateOfBirth\" : \"{{custDOB}}\",\r\n    \"custAddress\" : {\r\n        \"address1\" : \"21 jump street\",\r\n        \"address2\" : \"New South Caroline\",\r\n        \"postalCode\" : \"88888\",\r\n        \"city\" : \"wow this place\",\r\n        \"state\" : \"it is here\"\r\n    },\r\n    \"storeCode\" : \"Teststore\",\r\n    \"storeName\" : \"\",\r\n    \"storeAddress\" : \"\",\r\n    \"storeCity\" : \"\",\r\n    \"salesRepId\" : \"TestSales\",\r\n    \"salesRepName\" : \"\",\r\n    \"deviceRRP\" : \"{{deviceRRP}}\",\r\n    \"deviceType\" : \"\",\r\n    \"deviceMake\" : \"Samsung\",\r\n    \"deviceModel\" : \"SM-G975F\",\r\n    \"deviceColor\" : \"\",\r\n    \"repairValue\" : \"\",\r\n    \"berValue\" : \"\",\r\n    \"policyIMEINumber\" : \"{{generateImei}}\",\r\n    \"nameGoodsType\" : \"\",\r\n    \"policyStartDate\" : \"{{currentDate}}\",\r\n    \"deviceValueSumAssured\" : \"\",\r\n    \"deviceSerialNo\" : \"\",\r\n    \"valueAddedServices\" : [ ],\r\n    \"dwhUniqueKey\" : \"\",\r\n\t\"customerDeviceDiagnosticConsent\" : true\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{policyBaseUrl}}/policy",
+							"host": [
+								"{{policyBaseUrl}}"
+							],
+							"path": [
+								"policy"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get policy by id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Check response message = successful\", function() {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    const policyId = pm.collectionVariables.get(\"policyId\");\r",
+									"    pm.expect(jsonData.message[0]).to.eql(\"Policy Details Successfully Fetched For PolicyId:\" + policyId);\r",
+									"    pm.expect(jsonData.status).to.eql(\"OK\");\r",
+									"});\r",
+									"\r",
+									"const policyId = pm.collectionVariables.get(\"policyId\");\r",
+									"pm.test(\"Set policyId to env: \" + policyId, function() {\r",
+									"    const policyId = pm.collectionVariables.get(\"policyId\");\r",
+									"    pm.environment.set(\"envPolicyId\", policyId);\r",
+									"});\r",
+									"\r",
+									"const imei = pm.collectionVariables.get(\"generateImei\");\r",
+									"const deviceSerialNo = pm.collectionVariables.get(\"generateSerialNo\");\r",
+									"pm.test(\"Set imei or serial no to env: Imei= \" + imei + \" / SerialNo= \" + deviceSerialNo, function() {\r",
+									"    if (imei != null) {\r",
+									"        pm.environment.set(\"envImei\", imei);\r",
+									"    } else if (deviceSerialNo != null) {\r",
+									"        pm.environment.set(\"envSerialNo\", deviceSerialNo);\r",
+									"    }\r",
+									"});\r",
+									"\r",
+									"//Verify plan details agains plansFetched from step \"{{productBaseUrl}}/productapi/products/product-by-filtered-data\"\r",
+									"var _plansFetched = pm.collectionVariables.get(\"plansFetched\");\r",
+									"pm.test(\"Verfiy pricing detail \" + imei + \" / SerialNo= \" + deviceSerialNo, function() {\r",
+									"    _plans = pm.response.json().obj.productsModel.plans;\r",
+									"    pm.expect(_plans.length).to.eql(_plansFetched.length);\r",
+									"\r",
+									"    for(var z=0 ; z < _plans.length ; z++ )\r",
+									"    {\r",
+									"        pm.expect(_plans[z].deleted).to.eql(0);\r",
+									"\r",
+									"        var matchedPlan = {};\r",
+									"        for(var y=0 ; y < _plansFetched.length ; y++ ){\r",
+									"            if( _plans[z].planCode == _plansFetched[y].planCode)\r",
+									"            {\r",
+									"                matchedPlan = _plans[z];\r",
+									"                break;\r",
+									"            }\r",
+									"        }\r",
+									"        console.log(\"Verifying ::\" + _plans[z].planCode);\r",
+									"        pm.expect(_plans[z].price.internalMarginRateWithoutContingencyCost).to.eql(matchedPlan.price.internalMarginRateWithoutContingencyCost);\r",
+									"        pm.expect(_plans[z].price.internalMarginRateWithContingencyCost).to.eql(matchedPlan.price.internalMarginRateWithContingencyCost);\r",
+									"        pm.expect(_plans[z].price.transferPriceValue).to.eql(matchedPlan.price.transferPriceValue);\r",
+									"        pm.expect(_plans[z].price.retailPriceValueWithoutTax).to.eql(matchedPlan.price.retailPriceValueWithoutTax);\r",
+									"    }\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Set data into env variable\", function() {\r",
+									"    const jsonData = pm.response.json();\r",
+									"\r",
+									"    const policyPurchaseDate = jsonData.obj.policyPurchaseDate;\r",
+									"    pm.environment.set(\"envPolicyPurchaseDate\", policyPurchaseDate);\r",
+									"\r",
+									"    const productName = jsonData.obj.productName;\r",
+									"    pm.environment.set(\"envProductName\", productName);\r",
+									"\r",
+									"    pm.environment.set(\"envEmail\", pm.environment.get(\"email\"));\r",
+									"\r",
+									"    const deviceModel = jsonData.obj.deviceModel;\r",
+									"    pm.environment.set(\"envDeviceModel\", deviceModel);\r",
+									"\r",
+									"    const coverage = jsonData.obj.coverage;\r",
+									"    pm.environment.set(\"envCoverage\", coverage);\r",
+									"\r",
+									"    const policyStartDate = jsonData.obj.policyStartDate;\r",
+									"    pm.environment.set(\"envPolicyStartDate\", policyStartDate);\r",
+									"\r",
+									"    const policyEndDate = jsonData.obj.policyEndDate;\r",
+									"    pm.environment.set(\"envPolicyEndDate\", policyEndDate);\r",
+									"\r",
+									"    const jsonProductsModel = jsonData.obj.productsModel;\r",
+									"    pm.environment.set(\"envPlanName\", jsonProductsModel.plans[0].name);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validate Policy's ProductName is correct\", function () {\r",
+									"    const countryCode = pm.collectionVariables.get(\"countryCode\");\r",
+									"    const jsonData = pm.response.json();\r",
+									"    const clientProductDescription = jsonData.obj.clientProductDescription;\r",
+									"    const coverage = jsonData.obj.coverage;\r",
+									"\r",
+									"    if (countryCode == \"BE\" && coverage == \"ADLD/THEFT\") {\r",
+									"        pm.expect(jsonData.obj.clientProductDescription).to.eql(\"Samsung Care+ Onopzettelijke Schade, Vloeistofschade en Diefstal/ Samsung Care+ Dommages Accidentels, Dommages causés par un liquide et Vol\");\r",
+									"        console.log(\"Policy's ProductName: \" + clientProductDescription);\r",
+									"    }\r",
+									"    else if (countryCode == \"BE\" && coverage == \"ADLD\") {\r",
+									"        pm.expect(jsonData.obj.clientProductDescription).to.eql(\"Samsung Care+ Onopzettelijke Schade en Vloeistofschade/ Samsung Care+ Dommages Accidentels et Dommages causés par un liquide\");\r",
+									"        console.log(\"Policy's ProductName: \" + clientProductDescription);\r",
+									"    }\r",
+									"    else if (countryCode == \"NL\" && coverage == \"ADLD/THEFT\") {\r",
+									"        pm.expect(jsonData.obj.clientProductDescription).to.eql(\"Samsung Care+ Onopzettelijke Schade, Vloeistofschade en Diefstal\");\r",
+									"        console.log(\"Policy's ProductName: \" + clientProductDescription);\r",
+									"    } \r",
+									"    else if (countryCode == \"NL\" && coverage == \"ADLD\") {\r",
+									"        pm.expect(jsonData.obj.clientProductDescription).to.eql(\"Samsung Care+ Onopzettelijke Schade en Vloeistofschade\");\r",
+									"        console.log(\"Policy's ProductName: \" + clientProductDescription);\r",
+									"    }\r",
+									"    else if (countryCode == \"SE\" && coverage == \"ADLD/THEFT\") {\r",
+									"        pm.expect(jsonData.obj.clientProductDescription).to.eql(\"Samsung Care+ Otursskador, vätskeskador och stöld\");\r",
+									"        console.log(\"Policy's ProductName: \" + clientProductDescription);\r",
+									"\r",
+									"    }\r",
+									"    else if (countryCode == \"SE\" && coverage == \"ADLD\") {\r",
+									"        pm.expect(jsonData.obj.clientProductDescription).to.eql(\"Samsung Care+ Otursskador och vätskeskador\");\r",
+									"        console.log(\"Policy's ProductName: \" + clientProductDescription);\r",
+									"    }\r",
+									"    else if (countryCode == \"NO\" && coverage == \"ADLD/THEFT\") {\r",
+									"        pm.expect(jsonData.obj.clientProductDescription).to.eql(\"Samsung Care+ Skader ved ulykker, væskeskade og tyveri\");\r",
+									"         console.log(\"Policy's ProductName: \" + clientProductDescription);\r",
+									"    }\r",
+									"    else if (countryCode == \"NO\" && coverage == \"ADLD\") {\r",
+									"        pm.expect(jsonData.obj.clientProductDescription).to.eql(\"Samsung Care+ Skader ved ulykker og væskeskader\");\r",
+									"         console.log(\"Policy's ProductName: \" + clientProductDescription);\r",
+									"\r",
+									"    }\r",
+									"    else if (countryCode == \"DK\" && coverage == \"ADLD/THEFT\") {\r",
+									"        pm.expect(jsonData.obj.clientProductDescription).to.eql(\"Samsung Care+ Hændelige skader, væskeskader og tyveri\");\r",
+									"        console.log(\"Policy's ProductName: \" + clientProductDescription);\r",
+									"    }\r",
+									"    else if (countryCode == \"DK\" && coverage == \"ADLD\") {\r",
+									"        pm.expect(jsonData.obj.clientProductDescription).to.eql(\"Samsung Care+ Hændelige skader og væskeskader\");\r",
+									"         console.log(\"Policy's ProductName: \" + clientProductDescription);\r",
+									"    }\r",
+									"    else if (countryCode == \"FI\" && coverage == \"ADLD/THEFT\") {\r",
+									"        pm.expect(jsonData.obj.clientProductDescription).to.eql(\"Samsung Care+ Vahinkovauriot, Nestevauriot sekä Varkaus\");\r",
+									"        console.log(\"Policy's ProductName: \" + clientProductDescription);\r",
+									"    }\r",
+									"    else if (countryCode == \"FI\" && coverage == \"ADLD\") {\r",
+									"        pm.expect(jsonData.obj.clientProductDescription).to.eql(\"Samsung Care+ Tapaturmaiset vauriot ja Nestevauriot\");\r",
+									"        console.log(\"Policy's ProductName: \" + clientProductDescription);\r",
+									"    }\r",
+									"});\r",
+									"\r",
+									"\r",
+									"if (pm.collectionVariables.get(\"isCheckOnboardingEmail\") == \"TRUE\") {\r",
+									"    setTimeout(function(){\r",
+									"        console.log(\"Sleeping for N ms before next request.\");\r",
+									"            postman.setNextRequest(\"Check Onboarding Email\");\r",
+									"    }, pm.collectionVariables.get(\"emailInterval\"));\r",
+									"} else {\r",
+									"    postman.setNextRequest(\"Last Step\");\r",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{x-api-key}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{policyBaseUrl}}/policy/{{policyId}}?partnerId={{partnerId}}",
+							"host": [
+								"{{policyBaseUrl}}"
+							],
+							"path": [
+								"policy",
+								"{{policyId}}"
+							],
+							"query": [
+								{
+									"key": "partnerId",
+									"value": "{{partnerId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Check Onboarding Email",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"const jsonData = pm.response.json();\r",
+									"const email = _.find(jsonData.content, function(u) { return u.tag ===\"POLICY_ONBOARDING\" });\r",
+									"\r",
+									"pm.test(\"Check Onboarding Email Tag\", function () {\r",
+									"    pm.expect(email.tag).to.eql(\"POLICY_ONBOARDING\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Check Onboarding Email Status\", function () {\r",
+									"    pm.expect(email.mailStatus).to.eql(\"SUCCESS\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Check Onboarding Email recipientEmail\", function () {\r",
+									"    pm.expect(email.recipientEmail[0]).to.eql(pm.collectionVariables.get(\"custEmail\"));\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{x-api-key}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{notificationBaseUrl}}/findEmailLogsById/{{policyId}}?isClaim=false",
+							"host": [
+								"{{notificationBaseUrl}}"
+							],
+							"path": [
+								"findEmailLogsById",
+								"{{policyId}}"
+							],
+							"query": [
+								{
+									"key": "isClaim",
+									"value": "false"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Last Step",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 405\", function () {\r",
+									"        pm.response.to.have.status(405);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{authBaseUrl}}",
+							"host": [
+								"{{authBaseUrl}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Teardown",
+			"item": [
+				{
+					"name": "Clear collection variable",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 405\", function () {\r",
+									"        pm.response.to.have.status(405);\r",
+									"});\r",
+									"\r",
+									"pm.environment.set(\"envPolicyId\", \"\");\r",
+									"pm.environment.set(\"envImei\", \"\");\r",
+									"pm.environment.set(\"envSerialNo\", \"\");\r",
+									"pm.environment.set(\"envPolicyPurchaseDate\", \"\");\r",
+									"pm.environment.set(\"envProductName\", \"\");\r",
+									"pm.environment.set(\"envEmail\", \"\");\r",
+									"pm.environment.set(\"envDeviceModel\", \"\");\r",
+									"pm.environment.set(\"envCoverage\", \"\");\r",
+									"pm.environment.set(\"envPolicyStartDate\", \"\");\r",
+									"pm.environment.set(\"envPolicyEndDate\", \"\");\r",
+									"pm.environment.set(\"envPlanName\", \"\");\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{authBaseUrl}}",
+							"host": [
+								"{{authBaseUrl}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "authBaseUrl",
+			"value": "https://optimus.uat.device.bolttech.eu:8081",
+			"type": "default"
+		},
+		{
+			"key": "policyBaseUrl",
+			"value": "https://optimus.uat.device.bolttech.eu:8082",
+			"type": "default"
+		},
+		{
+			"key": "productBaseUrl",
+			"value": "https://optimus.uat.device.bolttech.eu:8083",
+			"type": "default"
+		},
+		{
+			"key": "notificationBaseUrl",
+			"value": "https://optimus.uat.device.bolttech.eu:8085d",
+			"type": "default"
+		},
+		{
+			"key": "flowableBaseUrl",
+			"value": "https://optimus.uat.device.bolttech.eu",
+			"type": "default"
+		},
+		{
+			"key": "flowableUsername",
+			"value": "flowLdap",
+			"type": "default"
+		},
+		{
+			"key": "flowablePassword",
+			"value": "Test123@",
+			"type": "default"
+		},
+		{
+			"key": "isCheckOnboardingEmail",
+			"value": "TRUE",
+			"type": "default"
+		},
+		{
+			"key": "emailInterval",
+			"value": "60000",
+			"type": "default"
+		},
+		{
+			"key": "isVerifyClaimSetting",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "username",
+			"value": "sw.yap",
+			"type": "default"
+		},
+		{
+			"key": "password",
+			"value": "Bt2021###",
+			"type": "default"
+		},
+		{
+			"key": "flowableAuth",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "flowableProductDefinitionID",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "custDOB",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "custEmail",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "custName",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "custLastName",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "custMobileNumber",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "productCode",
+			"value": "BESAMBENUBADLDTHEFT1202",
+			"type": "default"
+		},
+		{
+			"key": "partnerProductId",
+			"value": "BELSTG20210827000773",
+			"type": "default"
+		},
+		{
+			"key": "partnerId",
+			"value": "BESAMSUOEMNA01"
+		},
+		{
+			"key": "policyId",
+			"value": "BESAMBENUB20220607000223"
+		},
+		{
+			"key": "clientCode",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "testMode",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "deviceModel",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "partnerContractId",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "generateImei",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "currentDate",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "yesterdayDate",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "24hTime",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "devicePriceEndingRange",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "deviceRRP",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "x-api-key",
+			"value": ""
+		},
+		{
+			"key": "coverageCode",
+			"value": ""
+		},
+		{
+			"key": "tenureInMonths",
+			"value": ""
+		},
+		{
+			"key": "countryCode",
+			"value": ""
+		},
+		{
+			"key": "productName",
+			"value": ""
+		},
+		{
+			"key": "clientProductDescription",
+			"value": ""
+		},
+		{
+			"key": "currentDateToString",
+			"value": ""
+		},
+		{
+			"key": "generateSerialNo",
+			"value": ""
+		},
+		{
+			"key": "clientName",
+			"value": ""
+		},
+		{
+			"key": "id",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "deviceSerialNo",
+			"value": ""
+		},
+		{
+			"key": "plansFetched",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "partnerParentPolicyId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "deviceQuantity",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
